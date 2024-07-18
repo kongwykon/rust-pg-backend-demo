@@ -1,0 +1,40 @@
+[package]
+name = "rust-pg-demo"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7.5", features = ["macros", "json", "ws", "tokio"] }
+axum-macros = "0.3"
+axum-extra = { version = "0.9.3", features = ["cookie","typed-header"]}
+chrono = { version = "0.4.26", features = ["serde"] }
+diesel = { version = "2.2.0", features = [
+    "postgres",
+    "uuid",
+    "serde_json",
+    "chrono",
+] }
+diesel_migrations = "2.2.0"
+deadpool-diesel = { version = "0.4", features = ["postgres"] }
+dotenvy = "0.15"
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["sync", "macros", "rt-multi-thread"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1.8", features = ["fast-rng", "v4", "serde"] }
+tower-http = { version = "0.5.2", features = ["cors", "fs", "trace"] }
+futures-util = { version = "0.3", default-features = false, features = [
+    "sink",
+    "std",
+] }
+headers = "0.4"
+jsonwebtoken = "9"
+rand_core = "0.6.4"
+argon2 = {version = "0.5.3", features = ["password-hash"]}
+bcrypt = "0.15.1"
+
+[dev-dependencies]
+anyhow = "1"
+httpc-test = "0.1.1"

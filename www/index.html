@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>htmx</title>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.11"
+        integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"
+        onload="console.log('installed HTMX')"></script>
+    <!-- Handlebars from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"
+        onload="console.log('installed Handlebars')"></script>
+    <script onload="console.log('instaled Handlebars')">
+        var template = Handlebars.compile("Handlebars <b>{{doesWhat}}</b>");
+        console.log(template({ doesWhat: "rocks!" }));
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Hyperscript -->
+    <script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+    <!-- Client Side Templates -->
+    <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/client-side-templates.js"></script>
+    <!-- saved file reload -->
+    <script src="https://livejs.com/live.js"></script>
+    <!-- post json -->
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+</head>
+
+<body>
+    <!-- CORS -->
+    <script>
+        // document.body.addEventListener('htmx:configRequest', (event) => {
+        //     event.detail.path = `http://127.1:4000${event.detail.path}`
+        //     event.detail.headers['Access-Control-Allow-Origin'] = '*'
+        // })
+    </script>
+    <nav class="sticky flex flex-row gap-2 p-2" id="wait-login-nav">
+        <a href="/sign_in" class="btn bg-cyan-500 px-2 py-1 rounded-md text-white">sign in</a>
+        <a href="/sign_up" class="btn bg-cyan-500 px-2 py-1 rounded-md text-white">sign up</a>
+    </nav>
+    <div hx-ext="client-side-templates" hx-trigger="load, AddServerDone from:body" hx-get="/v1/servers"
+        hx-swap="innerHTML" hx-target="#serversList" handlebars-template="serversList-tp" _='on htmx:afterRequest(detail)
+         set :x to detail.xhr.statusText 
+         put :x into first <output/>
+         if :x!="OK" remove #serversList then show #wait-login-nav
+         else hide #wait-login-nav end'>
+        <p id="api_status" class="w-full bg-sky-200 backdrop-blur-sm flex justify-center py-2">
+            auth status:
+            <output>--</output>
+            <button class="absolute right-2 bg-rose-400 rounded-md" hx-post="/v1/main_user/sign_out" >sign
+                out</button>
+        </p>
+        <p id="serversList" class="m-2">Loading Servers</p>
+        <template id="serversList-tp">
+            {{#each servers}}
+            <div
+                class="group container box-border mx-auto bg-gray-100 border-2 border-gray-200 p-4 my-2 hover:bg-gray-200 rounded-md justify-between flex-row flex">
+                <div class="flex-1">
+                    <h2 class="text-lg font-bold">{{name}}</h2>
+                    <p>{{ip}}</p>
+                </div>
+                <div id="delete"
+                    class="invisible flex items-center bg-slate-50 hover:bg-red-50 rounded-md h-auto my-3 px-2 group-hover:visible"
+                    hx-target="closest .group" hx-swap="outerHTML" hx-confirm="Are you sure you want to delete?"
+                    hx-delete="/v1/servers/{{id}}">delete</div>
+            </div>
+            {{/each}}
+        </template>
+    </div>
+    <div hx-ext="client-side-templates" handlebars-template="response-tp" class="mx-2">
+        <div
+            class="container bg-gray-100 hover:bg-gray-200 box-border p-4 my-2 rounded-md border-2 border-gray-200 flex-col flex mx-auto">
+            <h2 class="text-xl italic mb-2">Add Server Config</h2>
+            <form hx-target="#response" hx-post="/v1/servers" hx-ext="json-enc" class="flex flex-col ">
+                <input class="w-36 rounded-md border-2 border-slate-400" type="text" name="name" placeholder="Name"
+                    required><br>
+                <input class="w-36 rounded-md border-2 border-slate-400" type="text" name="ip" placeholder="ip"
+                    required><br>
+                <button class="btn w-36 bg-blue-100 py-1 px-2 rounded-md" type="submit">Add</button>
+            </form>
+            <div id="response" _="on mouseenter hide"></div>
+            <template id="response-tp">
+                <p>Response:</p>
+                <div class="bg-green-100 p-2 rounded-md">{{is_ok}}</div>
+            </template>
+        </div>
+    </div>
+</body>
+
+</html>
